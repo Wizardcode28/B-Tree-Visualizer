@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 45 30% 97%;
+    --foreground: 220 25% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 20%;
+    --primary: 217 91% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 45 25% 92%;
+    --secondary-foreground: 220 25% 25%;
+    --muted: 45 20% 94%;
+    --muted-foreground: 220 15% 45%;
+    --accent: 35 100% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 217 91% 50%;
+    --radius: 0.75rem;
+
+    /* Node colors */
+    --node-default: 217 70% 60%;
+    --node-default-border: 217 70% 50%;
+    --node-active: 35 100% 55%;
+    --node-active-border: 35 100% 45%;
+    --node-found: 150 60% 45%;
+    --node-found-border: 150 60% 35%;
+    --node-splitting: 280 70% 55%;
+    --node-splitting-border: 280 70% 45%;
+    --node-range: 262 83% 58%;
+    --node-range-border: 262 83% 48%;
+
+    /* Panel */
+    --panel: 0 0% 100%;
+    --panel-border: 220 20% 92%;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 25% 20%;
+    --sidebar-primary: 217 91% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 45 25% 92%;
+    --sidebar-accent-foreground: 220 25% 25%;
+    --sidebar-border: 220 20% 92%;
+    --sidebar-ring: 217 91% 50%;
+
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  .dark {
+    --background: 220 25% 10%;
+    --foreground: 45 20% 95%;
+    --card: 220 25% 14%;
+    --card-foreground: 45 20% 95%;
+    --popover: 220 25% 14%;
+    --popover-foreground: 45 20% 95%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 20% 18%;
+    --secondary-foreground: 45 20% 90%;
+    --muted: 220 20% 16%;
+    --muted-foreground: 220 15% 55%;
+    --accent: 35 100% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 20% 22%;
+    --input: 220 20% 22%;
+    --ring: 217 91% 60%;
+
+    --node-default: 217 91% 60%;
+    --node-default-border: 217 91% 70%;
+    --node-active: 35 100% 55%;
+    --node-active-border: 35 100% 65%;
+    --node-found: 150 60% 45%;
+    --node-found-border: 150 60% 55%;
+    --node-splitting: 280 70% 55%;
+    --node-splitting-border: 280 70% 65%;
+    --node-range: 262 83% 55%;
+    --node-range-border: 262 83% 65%;
+
+    --panel: 220 25% 14%;
+    --panel-border: 220 20% 22%;
+
+    --sidebar-background: 220 25% 12%;
+    --sidebar-foreground: 45 20% 90%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 18%;
+    --sidebar-accent-foreground: 45 20% 90%;
+    --sidebar-border: 220 20% 22%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-panel border border-panel-border rounded-xl shadow-sm;
+  }
+  .glass {
+    @apply backdrop-blur-xl border border-panel-border;
+    background: hsl(var(--panel) / 0.8);
+  }
+  .font-mono-keys {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .animate-float-in {
+    animation: float-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .animate-float-up {
+    animation: float-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes float-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px hsl(var(--primary) / 0.15);
+  }
+}
