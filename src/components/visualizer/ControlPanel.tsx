@@ -8,6 +8,7 @@ import {
   Play, Pause, SkipForward, SkipBack, Plus, Search,
   Trash2, Shuffle, RotateCcw, ArrowRightLeft, Download, Upload, List
 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface ControlPanelProps {
   mode: TreeMode;
@@ -28,15 +29,13 @@ interface ControlPanelProps {
   onStepBackward: () => void;
   onSpeedChange: (s: number) => void;
   onBulkInsert: (keys: number[]) => void;
-  onSave: () => void;
-  onLoad: () => void;
 }
 
 export function ControlPanel({
   mode, order, isPlaying, speed, stepIndex, totalSteps,
   onOrderChange, onInsert, onSearch, onDelete, onRangeQuery,
   onRandom, onReset, onTogglePlay, onStepForward, onStepBackward, onSpeedChange,
-  onBulkInsert, onSave, onLoad,
+  onBulkInsert,
 }: ControlPanelProps) {
   const [keyInput, setKeyInput] = useState('');
   const [rangeLow, setRangeLow] = useState('');
@@ -45,16 +44,38 @@ export function ControlPanel({
 
   const handleOp = (op: (key: number) => void) => {
     const val = parseInt(keyInput);
-    if (!isNaN(val)) { op(val); setKeyInput(''); }
+    if (!isNaN(val)) {
+      if (val < 0) {
+        toast({ title: 'Invalid input', description: 'Only non-negative numbers are allowed', variant: 'destructive' });
+        return;
+      }
+      if (val >= 5000) {
+        toast({ title: 'Invalid input', description: 'Numbers must be less than 5000', variant: 'destructive' });
+        return;
+      }
+      op(val);
+      setKeyInput('');
+    }
   };
 
   const handleBulk = () => {
     const keys = bulkInput.split(/[,\s]+/).map(s => parseInt(s.trim())).filter(n => !isNaN(n));
-    if (keys.length > 0) { onBulkInsert(keys); setBulkInput(''); }
+    if (keys.length > 30) {
+      toast({ title: 'Limit exceeded', description: 'Maximum 30 items allowed', variant: 'destructive' });
+      return;
+    }
+    const validKeys = keys.filter(k => k >= 0 && k < 5000);
+    if (validKeys.length !== keys.length && keys.length > 0) {
+      toast({ title: 'Invalid input', description: 'Some values were ignored. Only non-negative numbers < 5000 are allowed.', variant: 'destructive' });
+    }
+    if (validKeys.length > 0) {
+      onBulkInsert(validKeys);
+      setBulkInput('');
+    }
   };
 
   return (
-    <div className="panel p-4 space-y-5 w-72 shrink-0 overflow-y-auto max-h-[calc(100vh-64px)]">
+    <div className="bg-card rounded-xl border border-border p-5 shadow-soft space-y-5">
       <div>
         <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Order (degree)</Label>
         <div className="flex items-center gap-2 mt-1.5">
@@ -142,14 +163,7 @@ export function ControlPanel({
         </Button>
       </div>
 
-      <div className="flex gap-1.5">
-        <Button size="sm" variant="outline" className="flex-1 text-xs gap-1" onClick={onSave}>
-          <Download className="w-3 h-3" /> Save
-        </Button>
-        <Button size="sm" variant="outline" className="flex-1 text-xs gap-1" onClick={onLoad}>
-          <Upload className="w-3 h-3" /> Load
-        </Button>
-      </div>
+
 
       <Button size="sm" variant="destructive" className="w-full text-xs gap-1" onClick={onReset}>
         <RotateCcw className="w-3 h-3" /> Reset Tree

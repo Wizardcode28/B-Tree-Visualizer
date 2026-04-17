@@ -6,7 +6,6 @@ import { ControlPanel } from '@/components/visualizer/ControlPanel';
 import { TreeCanvas } from '@/components/visualizer/TreeCanvas';
 import { ExplanationPanel } from '@/components/visualizer/ExplanationPanel';
 import { MetricsPanel } from '@/components/visualizer/MetricsPanel';
-import { InvariantPanel } from '@/components/visualizer/InvariantPanel';
 
 const Index = () => {
   const viz = useTreeVisualizer();
@@ -23,7 +22,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <AppHeader mode={viz.mode} onModeChange={viz.setMode} />
 
-      <main className="max-w-7xl mx-auto pt-6 pb-6 px-4 md:px-6 lg:px-8 space-y-6">
+      <main className="max-w-screen-xl mx-auto pt-6 pb-6 px-3 lg:px-4 space-y-6">
         <div className="grid lg:grid-cols-[320px_1fr] gap-6">
           {/* Left Panel - Controls */}
           <div className="space-y-4">
@@ -51,23 +50,24 @@ const Index = () => {
             />
             {/* Adding instructions/limitations like Radix explorer */}
             <div className="bg-card rounded-xl border border-border p-4 shadow-soft">
-              <h3 className="font-semibold mb-2">Instructions</h3>
-              <ul className="text-sm space-y-2 text-muted-foreground list-disc pl-4">
-                <li>Insert values to build the tree.</li>
-                <li>Wait for animations to complete or pause to step manually.</li>
-                <li>Adjust tree <strong>order (m)</strong> limits to see different split behaviors.</li>
-                <li>Use Step Forward/Backward to analyze algorithm frame-by-frame.</li>
-                <li>Values must be <strong>non-negative</strong> integers.</li>
+              <h3 className="text-sm font-medium mb-2">Quick Guide</h3>
+              <ul className="text-xs space-y-1 text-muted-foreground list-none">
+                <li>• Enter integers separated by commas</li>
+                <li>• Maximum 30 items allowed</li>
+                <li>• Numbers must be less than 5000</li>
+                <li>• Only non-negative numbers are allowed</li>
+                <li>• Use "Insert" or "Insert All" to begin visualization</li>
+                <li>• Play button animates through all steps</li>
+                <li>• Adjust speed slider for faster/slower animation</li>
               </ul>
             </div>
           </div>
 
           {/* Right Panel - Visualization */}
           <div className="space-y-3 flex-1 min-w-0">
-            {/* Top metrics/invariants */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Top metrics */}
+            <div className="mb-3">
               <MetricsPanel metrics={viz.metrics} />
-              <InvariantPanel result={viz.invariants} />
             </div>
 
             <ExplanationPanel

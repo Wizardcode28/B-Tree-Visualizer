@@ -20,12 +20,12 @@ export function AppHeader({ mode, onModeChange }: AppHeaderProps) {
   const isTheory = location.pathname === '/theory';
 
   return (
-    <header className="glass sticky top-0 z-50 px-6 py-3 flex items-center justify-between">
+    <header className="glass sticky top-0 z-50 px-3 md:px-5 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
           <GitBranch className="w-4 h-4 text-primary-foreground" />
         </div>
-        <h1 className="text-lg font-semibold tracking-tight">
+        <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
           Tree Visualizer
         </h1>
       </div>
