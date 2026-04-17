@@ -33,7 +33,7 @@ export function checkInvariants(root: TreeNode | null, order: number, mode: Tree
   function checkNode(node: TreeNode, isRoot: boolean) {
     // Check sorted keys
     for (let i = 1; i < node.keys.length; i++) {
-      if (node.keys[i] <= node.keys[i - 1]) {
+      if ((node.keys[i] as any) <= (node.keys[i - 1] as any)) {
         errors.push(`Node ${node.id}: keys not sorted [${node.keys.join(', ')}]`);
         break;
       }

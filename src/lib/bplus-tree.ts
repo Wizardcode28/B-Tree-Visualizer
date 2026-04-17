@@ -1,4 +1,4 @@
-import { TreeNode, Step, HighlightState } from './tree-types';
+import { TreeNode, Step, HighlightState, TreeKey } from './tree-types';
 
 let bplusCounter = 0;
 export function resetBPlusCounter() { bplusCounter = 0; }
@@ -21,24 +21,24 @@ export class BPlusTree {
     return { tree: cloneTree(this.root), highlights, description };
   }
 
-  private findChildIndex(keys: number[], key: number): number {
+  private findChildIndex(keys: TreeKey[], key: TreeKey): number {
     let i = 0;
-    while (i < keys.length && key >= keys[i]) i++;
+    while (i < keys.length && (key as any) >= (keys[i] as any)) i++;
     return i;
   }
 
-  containsKey(key: number): boolean {
+  containsKey(key: TreeKey): boolean {
     let node = this.root;
     while (node) {
       if (node.isLeaf) return node.keys.includes(key);
       let i = 0;
-      while (i < node.keys.length && key >= node.keys[i]) i++;
+      while (i < node.keys.length && (key as any) >= (node.keys[i] as any)) i++;
       node = node.children[i];
     }
     return false;
   }
 
-  insert(key: number): Step[] {
+  insert(key: TreeKey): Step[] {
     const steps: Step[] = [];
     if (!this.root) {
       this.root = { id: newId(), keys: [key], children: [], isLeaf: true };
@@ -61,10 +61,10 @@ export class BPlusTree {
     return steps;
   }
 
-  private _insertRec(node: TreeNode, key: number, steps: Step[]): void {
+  private _insertRec(node: TreeNode, key: TreeKey, steps: Step[]): void {
     if (node.isLeaf) {
       let i = 0;
-      while (i < node.keys.length && node.keys[i] < key) i++;
+      while (i < node.keys.length && (node.keys[i] as any) < (key as any)) i++;
       node.keys.splice(i, 0, key);
       steps.push(this.snap({ [node.id]: 'found' }, `Inserted ${key} into leaf [${node.keys.join(', ')}]`));
       return;
@@ -103,7 +103,7 @@ export class BPlusTree {
     ));
   }
 
-  search(key: number): Step[] {
+  search(key: TreeKey): Step[] {
     const steps: Step[] = [];
     if (!this.root) { steps.push({ tree: null, highlights: {}, description: 'Tree is empty' }); return steps; }
     let node = this.root;
@@ -141,13 +141,13 @@ export class BPlusTree {
 
     for (const leaf of leaves) {
       for (const k of leaf.keys) {
-        if (k >= low && k <= high) {
+        if ((k as any) >= (low as any) && (k as any) <= (high as any)) {
           started = true;
           foundKeys.push(k);
           rangeHighlights[leaf.id] = 'range';
         }
       }
-      if (started && leaf.keys[leaf.keys.length - 1] > high) break;
+      if (started && (leaf.keys[leaf.keys.length - 1] as any) > (high as any)) break;
     }
 
     steps.push(this.snap(rangeHighlights, `Range [${low},${high}] found: [${foundKeys.join(', ')}]`));
@@ -163,7 +163,7 @@ export class BPlusTree {
     return leaves;
   }
 
-  delete(key: number): Step[] {
+  delete(key: TreeKey): Step[] {
     const steps: Step[] = [];
     if (!this.root) { steps.push({ tree: null, highlights: {}, description: 'Tree is empty' }); return steps; }
     if (!this.containsKey(key)) {
@@ -185,7 +185,7 @@ export class BPlusTree {
     return steps;
   }
 
-  private _deleteFromLeaf(node: TreeNode, key: number, steps: Step[]): void {
+  private _deleteFromLeaf(node: TreeNode, key: TreeKey, steps: Step[]): void {
     if (node.isLeaf) {
       const idx = node.keys.indexOf(key);
       if (idx !== -1) {
@@ -264,7 +264,7 @@ export class BPlusTree {
     }
   }
 
-  private _getLeftmostKey(node: TreeNode): number | undefined {
+  private _getLeftmostKey(node: TreeNode): TreeKey | undefined {
     if (node.isLeaf) return node.keys[0];
     if (node.children.length) return this._getLeftmostKey(node.children[0]);
     return undefined;

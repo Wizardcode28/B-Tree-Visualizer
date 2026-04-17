@@ -52,10 +52,11 @@ const Index = () => {
             <div className="bg-card rounded-xl border border-border p-4 shadow-soft">
               <h3 className="text-sm font-medium mb-2">Quick Guide</h3>
               <ul className="text-xs space-y-1 text-muted-foreground list-none">
-                <li>• Enter integers separated by commas</li>
+                <li>• Enter numbers or strings separated by commas</li>
                 <li>• Maximum 30 items allowed</li>
                 <li>• Numbers must be less than 5000</li>
                 <li>• Only non-negative numbers are allowed</li>
+                <li>• Strings/characters must be 15 chars or less</li>
                 <li>• Use "Insert" or "Insert All" to begin visualization</li>
                 <li>• Play button animates through all steps</li>
                 <li>• Adjust speed slider for faster/slower animation</li>

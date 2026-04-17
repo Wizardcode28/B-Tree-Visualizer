@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TreeMode } from '@/lib/tree-types';
+import { TreeMode, TreeKey } from '@/lib/tree-types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,17 +18,17 @@ interface ControlPanelProps {
   stepIndex: number;
   totalSteps: number;
   onOrderChange: (o: number) => void;
-  onInsert: (key: number) => void;
-  onSearch: (key: number) => void;
-  onDelete: (key: number) => void;
-  onRangeQuery: (low: number, high: number) => void;
+  onInsert: (key: TreeKey) => void;
+  onSearch: (key: TreeKey) => void;
+  onDelete: (key: TreeKey) => void;
+  onRangeQuery: (low: TreeKey, high: TreeKey) => void;
   onRandom: (count: number) => void;
   onReset: () => void;
   onTogglePlay: () => void;
   onStepForward: () => void;
   onStepBackward: () => void;
   onSpeedChange: (s: number) => void;
-  onBulkInsert: (keys: number[]) => void;
+  onBulkInsert: (keys: TreeKey[]) => void;
 }
 
 export function ControlPanel({
@@ -42,15 +42,19 @@ export function ControlPanel({
   const [rangeHigh, setRangeHigh] = useState('');
   const [bulkInput, setBulkInput] = useState('');
 
-  const handleOp = (op: (key: number) => void) => {
-    const val = parseInt(keyInput);
-    if (!isNaN(val)) {
-      if (val < 0) {
+  const handleOp = (op: (key: TreeKey) => void) => {
+    const val = isNaN(Number(keyInput)) ? keyInput.trim() : Number(keyInput);
+    if (val !== "") {
+      if (typeof val === "number" && val < 0) {
         toast({ title: 'Invalid input', description: 'Only non-negative numbers are allowed', variant: 'destructive' });
         return;
       }
-      if (val >= 5000) {
+      if (typeof val === "number" && val >= 5000) {
         toast({ title: 'Invalid input', description: 'Numbers must be less than 5000', variant: 'destructive' });
+        return;
+      }
+      if (typeof val === "string" && val.length > 15) {
+        toast({ title: 'Invalid input', description: 'Strings must be 15 characters or less', variant: 'destructive' });
         return;
       }
       op(val);
@@ -59,12 +63,12 @@ export function ControlPanel({
   };
 
   const handleBulk = () => {
-    const keys = bulkInput.split(/[,\s]+/).map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+    const keys = bulkInput.split(/[,\s]+/).map(s => s.trim()).filter(s => s !== "").map(s => isNaN(Number(s)) ? s : Number(s));
     if (keys.length > 30) {
       toast({ title: 'Limit exceeded', description: 'Maximum 30 items allowed', variant: 'destructive' });
       return;
     }
-    const validKeys = keys.filter(k => k >= 0 && k < 5000);
+    const validKeys = keys.filter(k => typeof k === "string" ? k.length <= 15 : (k >= 0 && k < 5000));
     if (validKeys.length !== keys.length && keys.length > 0) {
       toast({ title: 'Invalid input', description: 'Some values were ignored. Only non-negative numbers < 5000 are allowed.', variant: 'destructive' });
     }
@@ -95,7 +99,7 @@ export function ControlPanel({
         <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Key</Label>
         <div className="flex gap-1.5 mt-1.5">
           <Input
-            type="number"
+            type="text"
             placeholder="Enter key"
             value={keyInput}
             onChange={e => setKeyInput(e.target.value)}
@@ -137,8 +141,8 @@ export function ControlPanel({
         <div>
           <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Range Query</Label>
           <div className="flex gap-1.5 mt-1.5">
-            <Input type="number" placeholder="Low" value={rangeLow} onChange={e => setRangeLow(e.target.value)} className="font-mono text-sm" />
-            <Input type="number" placeholder="High" value={rangeHigh} onChange={e => setRangeHigh(e.target.value)} className="font-mono text-sm" />
+            <Input type="text" placeholder="Low" value={rangeLow} onChange={e => setRangeLow(e.target.value)} className="font-mono text-sm" />
+            <Input type="text" placeholder="High" value={rangeHigh} onChange={e => setRangeHigh(e.target.value)} className="font-mono text-sm" />
           </div>
           <Button
             size="sm"

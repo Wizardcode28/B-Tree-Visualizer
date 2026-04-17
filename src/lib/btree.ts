@@ -1,4 +1,4 @@
-import { TreeNode, Step, HighlightState } from './tree-types';
+import { TreeNode, Step, HighlightState, TreeKey } from './tree-types';
 
 let nodeCounter = 0;
 export function resetNodeCounter() { nodeCounter = 0; }
@@ -23,27 +23,27 @@ export class BTree {
     return { tree: cloneTree(this.root), highlights, description };
   }
 
-  private findChildIndex(keys: number[], key: number): number {
+  private findChildIndex(keys: TreeKey[], key: TreeKey): number {
     let i = 0;
-    while (i < keys.length && key > keys[i]) i++;
+    while (i < keys.length && (key as any) > (keys[i] as any)) i++;
     return i;
   }
 
-  private insertSorted(keys: number[], key: number): number {
+  private insertSorted(keys: TreeKey[], key: TreeKey): number {
     let i = 0;
-    while (i < keys.length && keys[i] < key) i++;
+    while (i < keys.length && (keys[i] as any) < (key as any)) i++;
     keys.splice(i, 0, key);
     return i;
   }
 
-  containsKey(node: TreeNode | null, key: number): boolean {
+  containsKey(node: TreeNode | null, key: TreeKey): boolean {
     if (!node) return false;
     if (node.keys.includes(key)) return true;
     if (node.isLeaf) return false;
     return this.containsKey(node.children[this.findChildIndex(node.keys, key)], key);
   }
 
-  insert(key: number): Step[] {
+  insert(key: TreeKey): Step[] {
     const steps: Step[] = [];
     if (!this.root) {
       this.root = { id: newId(), keys: [key], children: [], isLeaf: true };
@@ -66,7 +66,7 @@ export class BTree {
     return steps;
   }
 
-  private _insertRec(node: TreeNode, key: number, steps: Step[]): void {
+  private _insertRec(node: TreeNode, key: TreeKey, steps: Step[]): void {
     if (node.isLeaf) {
       this.insertSorted(node.keys, key);
       steps.push(this.snap({ [node.id]: 'found' }, `Inserted ${key} into leaf [${node.keys.join(', ')}]`));
@@ -100,14 +100,14 @@ export class BTree {
     ));
   }
 
-  search(key: number): Step[] {
+  search(key: TreeKey): Step[] {
     const steps: Step[] = [];
     if (!this.root) { steps.push({ tree: null, highlights: {}, description: 'Tree is empty' }); return steps; }
     this._searchRec(this.root, key, steps);
     return steps;
   }
 
-  private _searchRec(node: TreeNode, key: number, steps: Step[]): void {
+  private _searchRec(node: TreeNode, key: TreeKey, steps: Step[]): void {
     steps.push(this.snap({ [node.id]: 'active' }, `Searching [${node.keys.join(', ')}] for ${key}`));
     if (node.keys.includes(key)) {
       steps.push(this.snap({ [node.id]: 'found' }, `Found ${key}!`));
@@ -121,7 +121,7 @@ export class BTree {
     this._searchRec(node.children[i], key, steps);
   }
 
-  delete(key: number): Step[] {
+  delete(key: TreeKey): Step[] {
     const steps: Step[] = [];
     if (!this.root) { steps.push({ tree: null, highlights: {}, description: 'Tree is empty' }); return steps; }
     steps.push(this.snap({ [this.root.id]: 'active' }, `Deleting ${key}`));
@@ -135,7 +135,7 @@ export class BTree {
     return steps;
   }
 
-  private _deleteRec(node: TreeNode, key: number, steps: Step[]): void {
+  private _deleteRec(node: TreeNode, key: TreeKey, steps: Step[]): void {
     const idx = node.keys.indexOf(key);
     if (idx !== -1) {
       if (node.isLeaf) {
@@ -205,12 +205,12 @@ export class BTree {
     steps.push(this.snap({ [left.id]: 'splitting' }, `Merged nodes → [${left.keys.join(', ')}]`));
   }
 
-  private _max(node: TreeNode): number {
+  private _max(node: TreeNode): TreeKey {
     while (!node.isLeaf) node = node.children[node.children.length - 1];
     return node.keys[node.keys.length - 1];
   }
 
-  private _min(node: TreeNode): number {
+  private _min(node: TreeNode): TreeKey {
     while (!node.isLeaf) node = node.children[0];
     return node.keys[0];
   }

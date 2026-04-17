@@ -1,8 +1,9 @@
 export type HighlightState = 'default' | 'active' | 'found' | 'splitting' | 'range';
+export type TreeKey = number | string;
 
 export interface TreeNode {
   id: string;
-  keys: number[];
+  keys: TreeKey[];
   children: TreeNode[];
   isLeaf: boolean;
 }
@@ -17,7 +18,7 @@ export interface LayoutNode {
   id: string;
   x: number;
   y: number;
-  keys: number[];
+  keys: TreeKey[];
   isLeaf: boolean;
   width: number;
   height: number;

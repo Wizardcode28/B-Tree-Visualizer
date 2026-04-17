@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { BTree, resetNodeCounter } from '@/lib/btree';
 import { BPlusTree, resetBPlusCounter } from '@/lib/bplus-tree';
-import { TreeMode, Step, TreeMetrics } from '@/lib/tree-types';
+import { TreeMode, Step, TreeMetrics, TreeKey } from '@/lib/tree-types';
 import { checkInvariants, InvariantResult } from '@/lib/tree-invariants';
 import { toast } from '@/hooks/use-toast';
 
@@ -54,25 +54,25 @@ export function useTreeVisualizer() {
     setIsPlaying(true);
   }, []);
 
-  const insert = useCallback((key: number) => {
+  const insert = useCallback((key: TreeKey) => {
     const tree = getTree();
     const s = mode === 'btree' ? (tree as BTree).insert(key) : (tree as BPlusTree).insert(key);
     runSteps(s);
   }, [mode, getTree, runSteps]);
 
-  const search = useCallback((key: number) => {
+  const search = useCallback((key: TreeKey) => {
     const tree = getTree();
     const s = mode === 'btree' ? (tree as BTree).search(key) : (tree as BPlusTree).search(key);
     runSteps(s);
   }, [mode, getTree, runSteps]);
 
-  const deleteKey = useCallback((key: number) => {
+  const deleteKey = useCallback((key: TreeKey) => {
     const tree = getTree();
     const s = mode === 'btree' ? (tree as BTree).delete(key) : (tree as BPlusTree).delete(key);
     runSteps(s);
   }, [mode, getTree, runSteps]);
 
-  const rangeQuery = useCallback((low: number, high: number) => {
+  const rangeQuery = useCallback((low: TreeKey, high: TreeKey) => {
     if (mode !== 'bplus') return;
     const s = (bplusRef.current).rangeQuery(low, high);
     runSteps(s);
@@ -89,7 +89,7 @@ export function useTreeVisualizer() {
     runSteps(allSteps);
   }, [mode, getTree, runSteps]);
 
-  const bulkInsert = useCallback((keys: number[]) => {
+  const bulkInsert = useCallback((keys: TreeKey[]) => {
     const tree = getTree();
     const allSteps: Step[] = [];
     for (const key of keys) {
