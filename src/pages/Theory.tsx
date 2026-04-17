@@ -115,23 +115,28 @@ const Theory = () => {
           <div>
             <h2 className="text-2xl font-bold text-foreground">4. B+ Trees Overview</h2>
             <p className="text-sm leading-relaxed text-muted-foreground mt-2">
-              A B+ Tree is a widely used variation where <strong>all actual data records reside at the leaf level</strong>. The internal nodes strictly store "routing keys" used solely for navigation.
+              A B+ Tree is a widely used variation where <strong>all actual data records reside at the leaf level</strong>. The internal nodes strictly store "routing keys" used solely for navigation. This decoupling is the backbone of modern relational database indexes like MySQL's InnoDB.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-card rounded-xl border border-border p-5 shadow-sm">
-              <h3 className="font-semibold text-foreground mb-3">Key Differences</h3>
+              <h3 className="font-semibold text-foreground mb-3">Core Invariants & Differences</h3>
               <ul className="text-sm space-y-3 list-disc list-outside ml-4 text-muted-foreground">
-                <li>Internal nodes only function as street signs; they just point the way.</li>
+                <li>Internal nodes only function as street signs; they strictly route queries left or right.</li>
+                <li><strong>Different Leaf Limits:</strong> In a B+ tree of order <span className="font-mono">m</span>, leaf nodes often have slightly different constraints than internal nodes. They hold up to <span className="font-mono">m - 1</span> values, but their minimum is often <span className="font-mono">⌊m/2⌋</span>.</li>
                 <li>All leaves are linked together sequentially like a Linked List.</li>
                 <li><strong>Range queries are trivial:</strong> Find the starting element in <span className="font-mono">O(log n)</span>, then just walk the leaf linked-list left-to-right!</li>
               </ul>
             </div>
-            <div className="bg-muted rounded-xl p-5 border border-border">
-              <h3 className="font-semibold text-foreground mb-3">B+ Splitting Difference</h3>
+            <div className="bg-muted rounded-xl p-5 border border-border space-y-4">
+              <h3 className="font-semibold text-foreground">B+ Splitting Differences</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                When a B+ Tree leaf node overflows, the median key is copied upward rather than strictly moving. This ensures the key still exists in the leaf level. If an internal routing node splits, it behaves exactly like a traditional B-Tree split.
+                When a B+ Tree leaf node overflows, it splits. However, since all data <strong>must</strong> reside in the leaves, the median key is <strong>copied</strong> upward rather than strictly moving. The left node keeps the first half, and the right node keeps the second half (including the median).
+              </p>
+              <h3 className="font-semibold text-foreground">B+ Deletion Differences</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Deleting from a B+ Tree leaf only affects the leaf layer. If the leaf underflows, it borrows from a sibling or merges. If the key was also an internal routing key, the routing key can often safely remain in the internal node acting as a signpost, or it can be lazily updated!
               </p>
             </div>
           </div>

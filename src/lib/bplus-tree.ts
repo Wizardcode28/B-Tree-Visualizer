@@ -15,7 +15,9 @@ export class BPlusTree {
   constructor(order: number) { this.order = order; }
 
   private maxKeys(): number { return this.order - 1; }
-  private minKeys(): number { return Math.ceil(this.order / 2) - 1; }
+  private minInternalKeys(): number { return Math.ceil(this.order / 2) - 1; }
+  private minLeafKeys(): number { return Math.floor(this.order / 2); }
+  private nodeMinKeys(isLeaf: boolean): number { return isLeaf ? this.minLeafKeys() : this.minInternalKeys(); }
 
   private snap(highlights: Record<string, HighlightState>, description: string): Step {
     return { tree: cloneTree(this.root), highlights, description };
@@ -199,7 +201,7 @@ export class BPlusTree {
       steps.push(this.snap({ [node.children[i].id]: 'active' }, `Descending to [${node.children[i].keys.join(', ')}]`));
       this._deleteFromLeaf(node.children[i], key, steps);
 
-      if (node.children[i].keys.length < this.minKeys()) {
+      if (node.children[i].keys.length < this.nodeMinKeys(node.children[i].isLeaf)) {
         this._fixBPlusChild(node, i, steps);
       }
 
@@ -212,7 +214,8 @@ export class BPlusTree {
     const right = i < parent.children.length - 1 ? parent.children[i + 1] : null;
     const child = parent.children[i];
 
-    if (left && left.keys.length > this.minKeys()) {
+    const reqMin = this.nodeMinKeys(child.isLeaf);
+    if (left && left.keys.length > reqMin) {
       if (child.isLeaf) {
         child.keys.unshift(left.keys.pop()!);
         parent.keys[i - 1] = child.keys[0];
@@ -222,7 +225,7 @@ export class BPlusTree {
         if (left.children.length) child.children.unshift(left.children.pop()!);
       }
       steps.push(this.snap({ [child.id]: 'active' }, 'Borrowed from left'));
-    } else if (right && right.keys.length > this.minKeys()) {
+    } else if (right && right.keys.length > reqMin) {
       if (child.isLeaf) {
         child.keys.push(right.keys.shift()!);
         parent.keys[i] = right.keys[0];

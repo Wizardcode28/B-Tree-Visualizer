@@ -10,7 +10,6 @@ export function checkInvariants(root: TreeNode | null, order: number, mode: Tree
   if (!root) return { valid: true, errors: [] };
 
   const maxKeys = order - 1;
-  const minKeys = Math.ceil(order / 2) - 1;
 
   // Check all leaves at same depth
   const leafDepths: number[] = [];
@@ -40,11 +39,12 @@ export function checkInvariants(root: TreeNode | null, order: number, mode: Tree
     }
 
     // Check key count limits
+    const minKeysReq = (mode === 'bplus' && node.isLeaf) ? Math.floor(order / 2) : Math.ceil(order / 2) - 1;
     if (node.keys.length > maxKeys) {
       errors.push(`Node ${node.id}: too many keys (${node.keys.length} > ${maxKeys})`);
     }
-    if (!isRoot && node.keys.length < minKeys) {
-      errors.push(`Node ${node.id}: too few keys (${node.keys.length} < ${minKeys})`);
+    if (!isRoot && node.keys.length < minKeysReq) {
+      errors.push(`Node ${node.id}: too few keys (${node.keys.length} < ${minKeysReq})`);
     }
 
     // Check children count for internal nodes
