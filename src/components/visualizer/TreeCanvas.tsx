@@ -105,48 +105,9 @@ function LeafLink({ edge }: { edge: LayoutEdge }) {
 }
 
 export function TreeCanvas({ layout, highlights, isBPlus }: TreeCanvasProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: 800, h: 500 });
-  const [isPanning, setIsPanning] = useState(false);
-  const panStartRef = useRef({ x: 0, y: 0, vx: 0, vy: 0 });
-
-  useEffect(() => {
-    if (layout.width > 0 && layout.height > 0) {
-      setViewBox({ x: 0, y: 0, w: Math.max(layout.width, 400), h: Math.max(layout.height, 300) });
-    }
-  }, [layout.width, layout.height]);
-
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const factor = e.deltaY > 0 ? 1.1 : 0.9;
-    setViewBox(vb => ({
-      x: vb.x,
-      y: vb.y,
-      w: vb.w * factor,
-      h: vb.h * factor,
-    }));
-  }, []);
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    setIsPanning(true);
-    panStartRef.current = { x: e.clientX, y: e.clientY, vx: viewBox.x, vy: viewBox.y };
-  }, [viewBox]);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isPanning || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const scaleX = viewBox.w / rect.width;
-    const scaleY = viewBox.h / rect.height;
-    const dx = (e.clientX - panStartRef.current.x) * scaleX;
-    const dy = (e.clientY - panStartRef.current.y) * scaleY;
-    setViewBox(vb => ({ ...vb, x: panStartRef.current.vx - dx, y: panStartRef.current.vy - dy }));
-  }, [isPanning, viewBox.w, viewBox.h]);
-
-  const handleMouseUp = useCallback(() => setIsPanning(false), []);
-
   if (layout.nodes.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center text-muted-foreground">
+      <div className="flex-1 flex items-center justify-center min-h-[400px] text-muted-foreground bg-card rounded-xl border border-border">
         <div className="text-center animate-float-in">
           <div className="text-4xl mb-3 opacity-30">🌳</div>
           <p className="text-sm">Insert a key to begin</p>
@@ -155,30 +116,31 @@ export function TreeCanvas({ layout, highlights, isBPlus }: TreeCanvasProps) {
     );
   }
 
+  // Calculate the required dimensions to fit the tree with some padding
+  const svgWidth = Math.max(layout.width + 40, 600);
+  const svgHeight = Math.max(layout.height + 40, 400);
+
   return (
-    <div
-      ref={containerRef}
-      className="flex-1 overflow-hidden cursor-grab active:cursor-grabbing rounded-xl bg-card border border-border"
-      onWheel={handleWheel}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-    >
-      <svg
-        width="100%"
-        height="100%"
-        viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`}
-        preserveAspectRatio="xMidYMid meet"
-      >
-        <AnimatePresence>
-          {layout.edges.map((e, i) => <Edge key={`e-${i}`} edge={e} />)}
-          {isBPlus && layout.leafLinks.map((e, i) => <LeafLink key={`ll-${i}`} edge={e} />)}
-          {layout.nodes.map(n => (
-            <NodeRect key={n.id} node={n} highlight={highlights[n.id] || 'default'} />
-          ))}
-        </AnimatePresence>
-      </svg>
+    <div className="bg-card rounded-xl border border-border p-4 shadow-soft">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-foreground">Visualization</h2>
+      </div>
+      <div className="flex justify-center overflow-x-auto min-h-[400px] py-4 pointer-events-auto">
+        <svg
+          width={svgWidth}
+          height={svgHeight}
+          viewBox={`-20 -20 ${svgWidth} ${svgHeight}`}
+          className="min-w-fit"
+        >
+          <AnimatePresence>
+            {layout.edges.map((e, i) => <Edge key={`e-${i}`} edge={e} />)}
+            {isBPlus && layout.leafLinks.map((e, i) => <LeafLink key={`ll-${i}`} edge={e} />)}
+            {layout.nodes.map(n => (
+              <NodeRect key={n.id} node={n} highlight={highlights[n.id] || 'default'} />
+            ))}
+          </AnimatePresence>
+        </svg>
+      </div>
     </div>
   );
 }
